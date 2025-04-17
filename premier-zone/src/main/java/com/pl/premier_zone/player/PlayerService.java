@@ -23,9 +23,13 @@ public class PlayerService {
         return playerRepository.findAll();
     }
 
+    public Player getPlayerById(Long id) {
+        return playerRepository.findById(id).orElse(null);
+    }
+
     public List<Player> getPlayersFromTeam(String teamName){
         return playerRepository.findAll().stream()
-                .filter(player -> teamName.equals(player.getTeam()))
+                .filter(player -> teamName.equalsIgnoreCase(player.getTeam()))
                 .collect(Collectors.toList()) ;
     }
 
@@ -47,38 +51,46 @@ public class PlayerService {
                 .collect(Collectors.toList()) ;
     }
 
-    public Player getPlayersByTeamAndPosition(String teamName, String position) {
+    public List<Player>  getPlayersByTeamAndPosition(String teamName, String position) {
         return playerRepository.findAll().stream()
-                .filter(player -> teamName.equals(player.getTeam()) && position.equals(player.getPos()))
-                .findFirst()
-                .orElse(null);
+                .filter(player -> teamName.equalsIgnoreCase(player.getTeam()) && position.equalsIgnoreCase(player.getPos()))
+                .collect(Collectors.toList());
     }
 
     public Player addPlayer(Player player){
         return playerRepository.save(player);
     }
 
-    public Player updatePlayer(Player player){
-        Optional<Player> existingPlayer = playerRepository.findByName(player.getName());
+    public Player updatePlayer(Long id, Player player){
+        Optional<Player> existingPlayer = playerRepository.findById(id);
 
-        if (existingPlayer.isPresent()){
+        if (existingPlayer.isPresent()) {
             Player updatedPlayer = existingPlayer.get();
+
             updatedPlayer.setName(player.getName());
             updatedPlayer.setNation(player.getNation());
             updatedPlayer.setPos(player.getPos());
+            updatedPlayer.setAge(player.getAge());
+            updatedPlayer.setMp(player.getMp());
+            updatedPlayer.setStarts(player.getStarts());
+            updatedPlayer.setMin(player.getMin());
+            updatedPlayer.setGoals(player.getGoals());
+            updatedPlayer.setAssists(player.getAssists());
+            updatedPlayer.setPk(player.getPk());
+            updatedPlayer.setCrdy(player.getCrdy());
+            updatedPlayer.setCrdr(player.getCrdr());
+            updatedPlayer.setXg(player.getXg());
+            updatedPlayer.setXag(player.getXag());
             updatedPlayer.setTeam(player.getTeam());
 
-            playerRepository.save(updatedPlayer) ;
-          
-        } 
-         
-        return null;
+            return playerRepository.save(updatedPlayer);
+        }
 
+        return null;
     }
 
     @Transactional
-    public void deletePlayer(String playerName){
-        playerRepository.deleteByName(playerName);
+    public void deletePlayer(Long id){
+        playerRepository.deleteById(id);
     }
-
 }
